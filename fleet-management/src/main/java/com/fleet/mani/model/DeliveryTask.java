@@ -1,5 +1,4 @@
 package com.fleet.mani.model;
-
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -14,7 +13,9 @@ public class DeliveryTask {
     private Long id;
 
     private String taskName;
-    private String status; // PENDING, IN_PROGRESS, COMPLETED
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status;
 
     @ManyToOne
     @JoinColumn(name = "driver_id")

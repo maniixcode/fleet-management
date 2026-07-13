@@ -17,4 +17,9 @@ public class Route {
     private String endLocation;
     private Double distanceKm;
     private Integer estimatedTimeMinutes;
+    //Coordinates for OSRM
+    private Double startLat;
+    private Double startLon;
+    private Double endLat;
+    private Double endLon;
 }

@@ -1,6 +1,7 @@
 package com.fleet.mani.service;
 
 import com.fleet.mani.model.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,18 +10,19 @@ import java.util.List;
 @Service
 public class RouteOptimizationService {
 
-    // Greedy TSP Algorithm
+    @Autowired
+    private OsrmService osrmService;
+
+    // Greedy TSP Algorithm with OSRM distances
     public List<Route> optimizeRoutes(List<Route> routes) {
         if (routes == null || routes.isEmpty()) return routes;
 
         List<Route> optimized = new ArrayList<>();
         List<Route> remaining = new ArrayList<>(routes);
 
-        // Start from first route
         Route current = remaining.remove(0);
         optimized.add(current);
 
-        // Always pick nearest next route
         while (!remaining.isEmpty()) {
             Route nearest = findNearest(current, remaining);
             optimized.add(nearest);
@@ -36,7 +38,20 @@ public class RouteOptimizationService {
         double minDistance = Double.MAX_VALUE;
 
         for (Route route : routes) {
-            double distance = route.getDistanceKm();
+            double distance;
+
+            // Use OSRM if coordinates available
+            if (current.getEndLat() != null && current.getEndLon() != null
+                    && route.getStartLat() != null && route.getStartLon() != null) {
+                distance = osrmService.getDistance(
+                        current.getEndLat(), current.getEndLon(),
+                        route.getStartLat(), route.getStartLon()
+                );
+            } else {
+                // Fallback to stored distance
+                distance = route.getDistanceKm() != null ? route.getDistanceKm() : 0;
+            }
+
             if (distance < minDistance) {
                 minDistance = distance;
                 nearest = route;
