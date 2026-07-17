@@ -9,26 +9,20 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.fleet.mani.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(
             RuntimeException ex) {
+        // Ignore swagger errors
+        if (ex.getMessage() != null && ex.getMessage().contains("swagger")) {
+            return ResponseEntity.notFound().build();
+        }
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now().toString());
         error.put("message", ex.getMessage());
         error.put("status", HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(
-            Exception ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now().toString());
-        error.put("message", "Internal server error");
-        error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return ResponseEntity.internalServerError().body(error);
     }
 }
